@@ -1,6 +1,5 @@
 // const path = require("path")
 // const fs = require("fs");
-// const { log } = require("console");
 
 import path from 'path';
 import fs from 'fs';
@@ -30,6 +29,6 @@ const getDirFiles = async function (dirPath) {
     console.log(`all the files:\n${JSON.stringify(filePaths, null, 4)}`)
     return filePaths;
 }
-
+console.log(getFilesInDirs(path))
 // module.exports = getFilesInDirs;
 export default getFilesInDirs

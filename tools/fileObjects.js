@@ -28,6 +28,6 @@ const getDirFiles = async function (dirPath, shootId) {
     }
     return fileObjects;
 }
-console.log(JSON.stringify(fileObjects))
+
 // module.exports = fileObjects;
 export default fileObjects
