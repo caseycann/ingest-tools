@@ -1,8 +1,8 @@
 // const getDirsInDir = require('./tools/elements/get-dirs-in-dir.js')
 // const getFilesInDirs = require('./tools/elements/get-files-in-dirs.js')
 
-import getDirsInDir from './elements/get-dirs-in-dir.js';
-import getFilesInDirs from './elements/get-files-in-dirs.js';
+// import getDirsInDir from './elements/get-dirs-in-dir.js';
+// import getFilesInDirs from './elements/get-files-in-dirs.js';
 
 const getDirFiles = async function (dirPath, shootId) {
     console.log(`getting the paths in ${dirPath}`);
@@ -26,3 +26,4 @@ const getDirFiles = async function (dirPath, shootId) {
     return fileObjects;
 }
 module.exports = fileObjects;
+

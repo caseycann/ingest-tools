@@ -10,7 +10,7 @@ import Shoot from './constructors/shoot.js'
 import validateShootPath from './elements/validate-shoot-path.js'
 
 const rename = async function(folderPath) {
-    console.log(chalk.blue(`*************\nlaunching rename with folderpath:\n${JSON.stringify(folderPath, null, 4)}`))
+    console.log(chalk.blue(`*\nlaunching rename with folderpath:\n${JSON.stringify(folderPath, null, 4)}`))
     if (validateShootPath(folderPath)) {
         const theShoot = new Shoot(folderPath);
         const allTheSubFolders = await getDirsInDir(folderPath);
