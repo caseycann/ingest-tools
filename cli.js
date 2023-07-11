@@ -8,6 +8,10 @@
 // const rename = require('./tools/ingest/rename')
 // const fileObjects = require('./tools/fileObjects.js')
 // const { secs2hms, secs2tc } = require('./tools/utilities/ll-time-tools')
+// var yargs = require('yargs').argv;
+// const m2s = require('./tools/m2s/index.js')
+// const makeFolders = require('./tools/ingest/make-folders')
+// store any arguments passed in using yargs
 
 
 import chalk from 'chalk';
@@ -16,13 +20,13 @@ import clear from 'clear';
 // import mk from './tools/mk/index';
 import rename from './tools/rename.js';
 import fileObjects from './tools/fileObjects.js'
+import dotenv from 'dotenv';
+import yargs from 'yargs';
 
-require('dotenv').config();
+dotenv.config();
+const argv = yargs.argv;
 
-// const m2s = require('./tools/m2s/index.js')
-// const makeFolders = require('./tools/ingest/make-folders')
-// store any arguments passed in using yargs
-var yargs = require('yargs').argv;
+
 
 console.log("launching it.")
 

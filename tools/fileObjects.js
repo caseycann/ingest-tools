@@ -4,10 +4,13 @@
 // import getDirsInDir from './elements/get-dirs-in-dir.js';
 // import getFilesInDirs from './elements/get-files-in-dirs.js';
 
+const fileObjects = []
+
 const getDirFiles = async function (dirPath, shootId) {
     console.log(`getting the paths in ${dirPath}`);
     const fileObjects = []
     const filesInDir = fs.readdirSync(dirPath);
+    
     for (let i = 0; i < filesInDir.length; i++) {
         const element = filesInDir[i];
         const counter = i+1;
@@ -25,5 +28,6 @@ const getDirFiles = async function (dirPath, shootId) {
     }
     return fileObjects;
 }
-module.exports = fileObjects;
-
+console.log(JSON.stringify(fileObjects))
+// module.exports = fileObjects;
+export default fileObjects

@@ -15,4 +15,5 @@ const validateShootPath = async function (dirPath) {
     }
 }
 
-module.exports = validateShootPath
+export default validateShootPath
+// module.exports = validateShootPath

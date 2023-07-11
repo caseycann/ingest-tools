@@ -18,4 +18,5 @@ const getDirsInDir = async function (dirPath) {
     return dirPaths;
 }
 
-module.exports = getDirsInDir;
+export default getDirsInDir
+// module.exports = getDirsInDir;

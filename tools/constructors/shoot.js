@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 import { parse } from 'date-fns';
 import path from 'path'
 
-module.exports = function Shoot(shootPath) {
+function Shoot(shootPath) {
     this.initialFolderPath = shootPath;
     this.shootId = path.basename(shootPath);
     this.dateString = this.shootId.substr(0,8);
@@ -23,3 +23,4 @@ module.exports = function Shoot(shootPath) {
     this.log = function(){console.log(JSON.stringify(this, null, 4))}
 }
   
+export default Shoot

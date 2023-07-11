@@ -79,4 +79,5 @@ async function changeTheNames(operationArray) {
     }
 }
 
-module.exports = rename
+// module.exports = rename
+export default rename

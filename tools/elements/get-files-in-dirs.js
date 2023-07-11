@@ -31,4 +31,5 @@ const getDirFiles = async function (dirPath) {
     return filePaths;
 }
 
-module.exports = getFilesInDirs;
+// module.exports = getFilesInDirs;
+export default getFilesInDirs
