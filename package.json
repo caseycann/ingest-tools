@@ -21,8 +21,10 @@
   },
   "homepage": "https://github.com/learninglab-studio/the-tools-21-22#readme",
   "dependencies": {
+    "airtable": "^0.12.1",
     "chalk": "^5.3.0",
     "clear": "^0.1.0",
+    "csvtojson": "^2.0.10",
     "date-fns": "^2.30.0",
     "dotenv": "^16.3.1",
     "ffmpeg": "^0.0.4",
