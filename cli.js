@@ -1,41 +1,26 @@
 #!/usr/bin/env node
 
-// bring in all the tools needed for text display
-// var figlet = require('figlet');
-// var clear = require('clear');
-// var chalk = require('chalk');
-// const mk = require('./tools/mk/index')
-// const rename = require('./tools/ingest/rename')
-// const fileObjects = require('./tools/fileObjects.js')
-// const { secs2hms, secs2tc } = require('./tools/utilities/ll-time-tools')
-// var yargs = require('yargs').argv;
-// const m2s = require('./tools/m2s/index.js')
-// const makeFolders = require('./tools/ingest/make-folders')
-// store any arguments passed in using yargs
+import checkSizes from './compare-file-sizes.js'
+import checkChecksum from './compare-file.js'
+import pushShoot from './ffprobe-to-AT_shoot.js'
+import pushMonth from './ffprobe-to-at_month.js'
 
+const args = process.argv.slice(2);
 
-import chalk from 'chalk';
-import figlet from 'figlet';
-import clear from 'clear';
-// import mk from './tools/mk/index';
-import rename from './tools/rename.js';
-import fileObjects from './tools/fileObjects.js'
-import dotenv from 'dotenv';
-import yargs from 'yargs';
-
-dotenv.config();
-const argv = yargs.argv;
-
-
-
-console.log("launching it.")
-
-if (yargs.mk) {
-    mk(yargs)
-} else if (yargs.rename) {
-    rename(yargs.rename)
-} else if (yargs.fileObjects){
-    fileObjects(yargs.fileObjects)
-} else {
-    console.log(`sorry, you didn't enter a recognized command.`)
+switch (args[0]) {
+  case '--checkSizes':
+    checkSizes(args[1], args[2]);
+    break;
+  case '--checkChecksum':
+    checkChecksum(args[1], args[2]);
+    break;
+  case '--pushShoot':
+    pushShoot(args[1]);
+    break;
+  case '--pushMonth':
+    pushMonth(args[1]);
+    break;
+  default:
+    console.error('Invalid script identifier. Use --checkSizes, --checkChecksum, --pushShoot, or --pushMonth.');
+    process.exit(1);
 }
