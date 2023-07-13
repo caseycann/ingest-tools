@@ -4,8 +4,6 @@ import { spawnSync } from 'child_process';
 import { readdirSync, statSync, writeFileSync } from 'fs';
 import { join, extname, basename, dirname } from 'path';
 import Airtable from 'airtable';
-import url from 'url';
-
 
 
 const base = new Airtable(process.env.AIRTABLE_API_KEY).base(process.env.AIRTABLE_BASE_ID);
@@ -206,15 +204,4 @@ function writeToFile(filename, data) {
 
 
 // Run the script on the top-level directory
-// Export the function, but don't call it yet
-export default function(directoryPath) {
-  processTopLevelDirectory(directoryPath);
-}
-
-// Call the function with the top-level directory
-// only when this script is run from the command line
-if (url.pathToFileURL(process.argv[1]).href === import.meta.url) {
-  const directoryPath = process.argv[2];
-  processTopLevelDirectory(directoryPath);
-}
-
+processTopLevelDirectory(topLevelDirectory);

@@ -81,4 +81,4 @@ async function compareDirectories(dir1, dir2) {
   console.log('Directories are identical');
 }
 
-export default compareDirectories
+compareDirectories(dirPath1, dirPath2);
