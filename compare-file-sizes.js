@@ -24,7 +24,7 @@ function getDirSize(dirPath) {
 }
 
 // Compare the directory sizes
-function compareDirectories(dir1, dir2) {
+function compareSizes(dir1, dir2) {
   const dirSize1 = getDirSize(dir1);
   const dirSize2 = getDirSize(dir2);
 
@@ -36,4 +36,4 @@ function compareDirectories(dir1, dir2) {
   }
 }
 
-export default compareDirectories
+export { compareSizes }

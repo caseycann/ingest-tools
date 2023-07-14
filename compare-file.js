@@ -62,7 +62,7 @@ function getTotalFiles(dirPath) {
 }
 
 // Compare the checksums
-async function compareDirectories(dir1, dir2) {
+async function compareFiles(dir1, dir2) {
   const totalFiles = getTotalFiles(dir1);
   progressBar.start(totalFiles, 0);
   
@@ -81,4 +81,4 @@ async function compareDirectories(dir1, dir2) {
   console.log('Directories are identical');
 }
 
-compareDirectories(dirPath1, dirPath2);
+export { compareFiles };

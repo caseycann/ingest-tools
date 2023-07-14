@@ -1,26 +1,44 @@
 #!/usr/bin/env node
 
-import checkSizes from './compare-file-sizes.js'
-import checkChecksum from './compare-file.js'
-import pushShoot from './ffprobe-to-AT_shoot.js'
-import pushMonth from './ffprobe-to-at_month.js'
+import { pushShoottoAT } from './ffprobe-to-AT_shoot.js';
+import { compareFiles } from './compare-file.js'
+import { compareSizes } from './compare-file-sizes.js'
+import { processMonthFolder } from './ffprobe-to-at_month.js';
+import { randomStills } from './randomStills.js'
 
-const args = process.argv.slice(2);
+const functions = {
+    '--compareFiles': compareFiles,
+    '--compareSizes': compareSizes,
+    '--pushShoot': pushShoottoAT,
+    '--pushMonth': processMonthFolder,
+    '--randomStills': randomStills
+};
 
-switch (args[0]) {
-  case '--checkSizes':
-    checkSizes(args[1], args[2]);
-    break;
-  case '--checkChecksum':
-    checkChecksum(args[1], args[2]);
-    break;
-  case '--pushShoot':
-    pushShoot(args[1]);
-    break;
-  case '--pushMonth':
-    pushMonth(args[1]);
-    break;
-  default:
-    console.error('Invalid script identifier. Use --checkSizes, --checkChecksum, --pushShoot, or --pushMonth.');
+let currentFunction = null;
+const argsForFunctions = {};
+
+// Parse command line arguments
+for (const arg of process.argv.slice(2)) {
+    if (arg.startsWith('--')) {
+        currentFunction = arg;
+        argsForFunctions[arg] = [];
+    } else if (currentFunction) {
+        argsForFunctions[currentFunction].push(arg);
+    }
+}
+
+// Check that at least one directory was provided
+if (Object.values(argsForFunctions).every(args => args.length === 0)) {
+    console.log('Please provide at least one path as an argument.');
     process.exit(1);
+}
+
+// Run the appropriate function based on the command line arguments
+for (const [functionFlag, functionArgs] of Object.entries(argsForFunctions)) {
+    const func = functions[functionFlag];
+    if (func) {
+        func(...functionArgs);
+    } else {
+        console.log(`Unknown function flag: ${functionFlag}`);
+    }
 }
