@@ -73,18 +73,28 @@ function extractStill(videoFilePath, timestamp, outputFilePath) {
 
   async function sendImageToSlack(filePath, channel) {
     try {
-        const result = await slack.files.uploadV2({
-            file: createReadStream(filePath),
-            filename: basename(filePath),
-            channels: channel,
-            initial_comment: `Here's an image extracted from a video: ${basename(filePath)}`
-          });
-          
+      const result = await slack.files.upload({
+        file: createReadStream(filePath),
+        filename: basename(filePath),
+        channels: channel,
+        initial_comment: `Here's an image extracted from a video: ${basename(filePath)}`
+      });
+  
       console.log('File sent: ', result.file.id);
+  
+      // Enable public URL for the file
+      const publicUrlResult = await slack.files.sharedPublicURL({
+        token: process.env.SLACK_USER_TOKEN,
+        file: result.file.id
+      });
+  
+      console.log('Public URL: ', publicUrlResult.file.permalink_public);
+  
     } catch (error) {
       console.error('Error sending file: ', error);
     }
   }
+  
   
   
   

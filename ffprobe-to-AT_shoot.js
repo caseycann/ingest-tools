@@ -29,7 +29,7 @@ function pushShoottoAT(directoryPath) {
               if (shoot.substring(0, 15) !== filename.substring(0, 15)) {
                     throw new Error(`"This shoot has not yet been renamed: ${shoot} vs ${filename}`);
               } else {
-                    base(process.env.FFPROBE_DATA_FIELD).create([
+                    base(process.env.FFPROBE_DATA_TABLE).create([
                         {
                         "fields": {
                             "filename": basename(item.format.filename),
@@ -80,7 +80,7 @@ function pushShoottoAT(directoryPath) {
   
 
 function pushImageDataToAT(exifData, shoot) {
-    base(process.env.EXIF_DATA_FIELD).create([
+    base(process.env.EXIF_DATA_TABLE).create([
         {
             "fields": {
                 "FileName": exifData.FileName,
