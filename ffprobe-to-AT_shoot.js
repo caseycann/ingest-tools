@@ -48,7 +48,7 @@ function pushShoottoAT(directoryPath) {
                             "duration_ts": item.streams[0].duration_ts,
                             "duration": parseInt(item.streams[0].duration),
                             "bit_rate": item.streams[0].bit_rate,
-                            "bits_per_raw_sample": item.streams[0].bits_per_raw_sample,
+                            "bit_depth": item.streams[0].bits_per_raw_sample,
                             "creation_time": item.streams[0].tags.creation_time,
                             "timecode": item.streams[0].tags.timecode,
                             "json": JSON.stringify(item, null, 4)
@@ -208,7 +208,7 @@ function processVideoFile(videoFilePath) {
 }
 
 function isImageFile(filename) {
-    const imageExtensions = ['.cr2', '.jpg', '.jpeg', '.png', '.tiff', '.dng']; // Add more extensions if needed
+    const imageExtensions = ['.cr2', '.jpg', '.jpeg', '.png', '.tiff', '.dng', '.heif']; // Add more extensions if needed
     const ext = extname(filename).toLowerCase();
     return imageExtensions.includes(ext);
 }
