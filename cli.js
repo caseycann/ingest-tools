@@ -5,13 +5,15 @@ import { compareFiles } from './compare-file.js'
 import { compareSizes } from './compare-file-sizes.js'
 import { processMonthFolder } from './ffprobe-to-at_month.js';
 import { randomStills } from './randomStills.js'
+import { printJSON } from './printJSON.js'
 
 const functions = {
     '--compareFiles': compareFiles,
     '--compareSizes': compareSizes,
     '--pushShoot': pushShoottoAT,
     '--pushMonth': processMonthFolder,
-    '--randomStills': randomStills
+    '--randomStills': randomStills,
+    '--printJSON': printJSON
 };
 
 let currentFunction = null;
