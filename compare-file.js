@@ -4,8 +4,24 @@ import { readdirSync, statSync } from 'fs';
 import { join, relative } from 'path';
 import cliProgress from 'cli-progress';
 
-// Retrieve the paths from the command line arguments
-const [dirPath1, dirPath2] = process.argv.slice(2);
+// Extract shootID and the two pieces of information from command line arguments
+const [shootID, pathPart1, pathPart2] = process.argv.slice(3);
+
+// Construct the two paths based on the shootID and the given pieces of information
+function constructPath(shootID, pathPart) {
+    const [date, , time, ...names] = shootID.split('.');
+    const year = date.substring(0, 4);
+    const month = date.substring(4, 6);
+    const day = date.substring(6, 8);
+    return `/Volumes/${pathPart}/${year}_${month}/${day}/${shootID}`;
+}
+
+const dirPath1 = constructPath(shootID, pathPart1);
+const dirPath2 = constructPath(shootID, pathPart2);
+
+console.log(dirPath1);
+console.log(dirPath2);
+
 
 // Create a new progress bar instance
 const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
@@ -47,6 +63,7 @@ async function getDirChecksums(dirPath, baseDir = dirPath) {
 
 // Function to get total number of files in a directory
 function getTotalFiles(dirPath) {
+    console.log(`dirPath: ${dirPath}`)
   let total = 0;
   const elements = readdirSync(dirPath);
   for (const element of elements) {
@@ -64,6 +81,7 @@ function getTotalFiles(dirPath) {
 // Compare the checksums
 async function compareFiles(dir1, dir2) {
   const totalFiles = getTotalFiles(dir1);
+  console.log(`totalFiles: ${totalFiles}`)
   progressBar.start(totalFiles, 0);
   
   const checksums1 = await getDirChecksums(dir1);
@@ -78,7 +96,11 @@ async function compareFiles(dir1, dir2) {
     }
   }
 
-  console.log('Directories are identical');
+  console.log(`${pathPart1} and ${pathPart2} are identical`);
 }
 
-export { compareFiles };
+export function compareFilesWithArgs(shootID, pathPart1, pathPart2) {
+    const dirPath1 = constructPath(shootID, pathPart1);
+    const dirPath2 = constructPath(shootID, pathPart2);
+    compareFiles(dirPath1, dirPath2);
+}

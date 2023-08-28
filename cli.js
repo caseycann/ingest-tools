@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 
 import { pushShoottoAT } from './ffprobe-to-AT_shoot.js';
-import { compareFiles } from './compare-file.js'
-import { compareSizes } from './compare-file-sizes.js'
+import { compareFilesWithArgs } from './compare-file.js'
+import { compareSizesWithArgs } from './compare-file-sizes.js'
 import { processMonthFolder } from './ffprobe-to-at_month.js';
 import { randomStills } from './randomStills.js'
 import { printJSON } from './printJSON.js'
 
 const functions = {
-    '--compareFiles': compareFiles,
-    '--compareSizes': compareSizes,
+    '--compareFiles': compareFilesWithArgs,
+    '--compareSizes': compareSizesWithArgs,
     '--pushShoot': pushShoottoAT,
     '--pushMonth': processMonthFolder,
     '--randomStills': randomStills,
