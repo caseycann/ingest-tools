@@ -1,18 +1,23 @@
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
+import cliProgress from 'cli-progress';
 
 function compressVideo(videoPath, outputPath) {
-    const compressedVideoPath = path.join(outputPath, path.basename(videoPath).replace('.mp4', '_proxy.mp4'));
+    const compressedVideoPath = path.join(outputPath, path.basename(videoPath));
     const ffmpegCommand = `ffmpeg -i "${videoPath}" -vf scale=1920:-1 -c:v libx264 -pix_fmt yuv420p -preset slow -crf 28 "${compressedVideoPath}"`;
     execSync(ffmpegCommand);
     return compressedVideoPath;
 }
 
 function copyToProxyDestination(compressedVideoPath, shootFolderName) {
-    const [year, month] = shootFolderName.split('.').slice(0, 2);
-    const proxyDestination = `/Volumes/sdx.1000/_proxy${year}_${month}_proxy`;
+    const year = shootFolderName.slice(0, 4);
+    const month = shootFolderName.slice(4, 6);
+    console.log(`_______________________________________${year}_${month}`);
+    const proxyDestination = `/Volumes/sdx.1000/_proxy/${year}_${month}/${shootFolderName}_proxy`;
     
+    //________________CHANGE THIS PATH BEFORE USING
+
     if (!fs.existsSync(proxyDestination)) {
         fs.mkdirSync(proxyDestination, { recursive: true });
     }
@@ -35,6 +40,18 @@ function makeProxy(directoryPath) {
         return fs.statSync(subDirPath).isDirectory();
     });
 
+    // Count total number of .mp4 files
+    let totalMediaFiles = 0;
+    cameraDirs.forEach(cameraDir => {
+        const cameraDirPath = path.join(directoryPath, cameraDir);
+        const mediaFiles = fs.readdirSync(cameraDirPath).filter(file => file.endsWith('.mp4')); 
+        totalMediaFiles += mediaFiles.length;
+    });
+
+    // Create a new progress bar instance and start it
+    const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
+    progressBar.start(totalMediaFiles, 0);
+
     cameraDirs.forEach(cameraDir => {
         const cameraDirPath = path.join(directoryPath, cameraDir);
         
@@ -50,8 +67,17 @@ function makeProxy(directoryPath) {
             const mediaFilePath = path.join(cameraDirPath, mediaFile);
             const compressedVideoPath = compressVideo(mediaFilePath, cameraProxyDirPath);
             copyToProxyDestination(compressedVideoPath, shootFolderName);
+
+            // Increment the progress bar for each processed file
+            progressBar.increment();
         });
     });
+
+    // Stop the progress bar when done
+    progressBar.stop();
+    fs.rmdirSync(proxyRootDir, { recursive: true });
+    // fs.rm(proxyRootDir, { recursive: true })
+    console.log(`${shootFolderName} has been proxied.`)
 }
 
 if (process.argv.length < 3) {
