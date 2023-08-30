@@ -6,6 +6,9 @@ import { compareSizesWithArgs } from './compare-file-sizes.js'
 import { processMonthFolder } from './ffprobe-to-at_month.js';
 import { randomStills } from './randomStills.js'
 import { printJSON } from './printJSON.js'
+import { makeProxy } from './makeProxy.js'
+
+// add some code that reads out the functions if only 'tools' is entered
 
 const functions = {
     '--compareFiles': compareFilesWithArgs,
@@ -13,7 +16,8 @@ const functions = {
     '--pushShoot': pushShoottoAT,
     '--pushMonth': processMonthFolder,
     '--randomStills': randomStills,
-    '--printJSON': printJSON
+    '--printJSON': printJSON, 
+    '--makeProxy': makeProxy
 };
 
 let currentFunction = null;
