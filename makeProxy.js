@@ -28,7 +28,18 @@ function copyToProxyDestination(compressedVideoPath, shootFolderName) {
 
 function makeProxy(directoryPath) {
     const shootFolderName = path.basename(directoryPath);
-    
+
+    // Calculate the expected proxyDestination
+    const year = shootFolderName.slice(0, 4);
+    const month = shootFolderName.slice(4, 6);
+    const proxyDestination = `/Volumes/sdx.1000/_proxy/${year}_${month}/${shootFolderName}_proxy`;
+
+    // Check if the directory already exists in the proxyDestination path
+    if (fs.existsSync(proxyDestination)) {
+        throw new Error(`A directory already exists at ${proxyDestination}. Please remove or rename the existing directory before proceeding.`);
+
+    }
+
     // Create shoot_proxy directory if not present
     const proxyRootDir = path.join(path.dirname(directoryPath), shootFolderName + "_proxy");
     if (!fs.existsSync(proxyRootDir)) {
