@@ -14,7 +14,7 @@ function compressVideo(videoPath, outputPath) {
 function copyToProxyDestination(compressedVideoPath, shootFolderName, originalCameraDir) {
     const year = shootFolderName.slice(0, 4);
     const month = shootFolderName.slice(4, 6);
-    const proxyDestinationBase = `/Volumes/sdx.1000/_proxy/${year}_${month}/${shootFolderName}_proxy`;
+    const proxyDestinationBase = `/Volumes/10_01/_proxy/${year}_${month}/${shootFolderName}.proxy`;
 
     // Include original camera directory in the destination path to retain the folder structure
     const destinationDir = path.join(proxyDestinationBase, originalCameraDir);
@@ -36,7 +36,7 @@ function isVideoFile(file) {
 function copyNonVideoFile(sourcePath, shootFolderName, originalCameraDir) {
     const year = shootFolderName.slice(0, 4);
     const month = shootFolderName.slice(4, 6);
-    const proxyDestinationBase = `/Volumes/sdx.1000/_proxy/${year}_${month}/${shootFolderName}_proxy`;
+    const proxyDestinationBase = `/Volumes/10_01/_proxy/${year}_${month}/${shootFolderName}.proxy`;
 
     // Include original camera directory in the destination path to retain the folder structure
     const destinationDir = path.join(proxyDestinationBase, originalCameraDir);

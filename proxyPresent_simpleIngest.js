@@ -39,7 +39,7 @@ async function fetchShootFolderNamesFromDirectory(monthPath) {
     const filesAndFolders = await fs.readdir(monthPath, { withFileTypes: true });
     return filesAndFolders
         .filter(dirent => dirent.isDirectory())
-        .map(dirent => dirent.name.replace('_proxy', ''));
+        .map(dirent => dirent.name.replace('.proxy', ''));
 }
 
 async function fetchAllMonthDirectories(topPath) {
