@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
-import cliProgress from 'cli-progress';
+import { SingleBar, Presets } from 'cli-progress';
+;
 
 function compressVideo(videoPath, outputPath) {
     const compressedVideoPath = path.join(outputPath, path.basename(videoPath));
@@ -10,37 +11,55 @@ function compressVideo(videoPath, outputPath) {
     return compressedVideoPath;
 }
 
-function copyToProxyDestination(compressedVideoPath, shootFolderName) {
+function copyToProxyDestination(compressedVideoPath, shootFolderName, originalCameraDir) {
     const year = shootFolderName.slice(0, 4);
     const month = shootFolderName.slice(4, 6);
-    console.log(`_______________________________________${year}_${month}`);
-    const proxyDestination = `/Volumes/sdx.1000/_proxy/${year}_${month}/${shootFolderName}_proxy`;
-    
-    //________________CHANGE THIS PATH BEFORE USING
+    const proxyDestinationBase = `/Volumes/sdx.1000/_proxy/${year}_${month}/${shootFolderName}_proxy`;
 
-    if (!fs.existsSync(proxyDestination)) {
-        fs.mkdirSync(proxyDestination, { recursive: true });
+    // Include original camera directory in the destination path to retain the folder structure
+    const destinationDir = path.join(proxyDestinationBase, originalCameraDir);
+
+    if (!fs.existsSync(destinationDir)) {
+        fs.mkdirSync(destinationDir, { recursive: true });
     }
 
-    const destinationPath = path.join(proxyDestination, path.basename(compressedVideoPath));
+    const destinationPath = path.join(destinationDir, path.basename(compressedVideoPath));
     fs.copyFileSync(compressedVideoPath, destinationPath);
 }
 
+// Utility function to check if the file is a video
+function isVideoFile(file) {
+    const videoExtensions = ['.mp4', '.mov', '.m4v'];
+    return videoExtensions.some(ext => file.toLowerCase().endsWith(ext));
+}
+
+function copyNonVideoFile(sourcePath, shootFolderName, originalCameraDir) {
+    const year = shootFolderName.slice(0, 4);
+    const month = shootFolderName.slice(4, 6);
+    const proxyDestinationBase = `/Volumes/sdx.1000/_proxy/${year}_${month}/${shootFolderName}_proxy`;
+
+    // Include original camera directory in the destination path to retain the folder structure
+    const destinationDir = path.join(proxyDestinationBase, originalCameraDir);
+
+    if (!fs.existsSync(destinationDir)) {
+        fs.mkdirSync(destinationDir, { recursive: true });
+    }
+
+    const destinationPath = path.join(destinationDir, path.basename(sourcePath));
+    fs.copyFileSync(sourcePath, destinationPath);
+}
+
+
 function makeProxy(directoryPath) {
     const shootFolderName = path.basename(directoryPath);
-
-    // Calculate the expected proxyDestination
     const year = shootFolderName.slice(0, 4);
     const month = shootFolderName.slice(4, 6);
     const proxyDestination = `/Volumes/sdx.1000/_proxy/${year}_${month}/${shootFolderName}_proxy`;
 
-    // Check if the directory already exists in the proxyDestination path
     if (fs.existsSync(proxyDestination)) {
         throw new Error(`A directory already exists at ${proxyDestination}. Please remove or rename the existing directory before proceeding.`);
-
     }
 
-    // Create shoot_proxy directory if not present
     const proxyRootDir = path.join(path.dirname(directoryPath), shootFolderName + "_proxy");
     if (!fs.existsSync(proxyRootDir)) {
         fs.mkdirSync(proxyRootDir);
@@ -51,18 +70,16 @@ function makeProxy(directoryPath) {
         return fs.statSync(subDirPath).isDirectory();
     });
 
-    // Count total number of .mp4 files
-    let totalMediaFiles = 0;
+    let totalFiles = 0;
     cameraDirs.forEach(cameraDir => {
         const cameraDirPath = path.join(directoryPath, cameraDir);
-        const mediaFiles = fs.readdirSync(cameraDirPath).filter(file => file.endsWith('.mp4')); 
-        totalMediaFiles += mediaFiles.length;
+        const files = fs.readdirSync(cameraDirPath);
+        totalFiles += files.length;
     });
-
-    // Create a new progress bar instance and start it
-    const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
-    progressBar.start(totalMediaFiles, 0);
-
+    
+    const progressBar = new SingleBar({}, Presets.shades_classic);
+    progressBar.start(totalFiles, 0);
+    
     cameraDirs.forEach(cameraDir => {
         const cameraDirPath = path.join(directoryPath, cameraDir);
         
@@ -71,29 +88,35 @@ function makeProxy(directoryPath) {
         if (!fs.existsSync(cameraProxyDirPath)) {
             fs.mkdirSync(cameraProxyDirPath);
         }
-
-        const mediaFiles = fs.readdirSync(cameraDirPath).filter(file => file.endsWith('.mp4')); 
-        
-        mediaFiles.forEach(mediaFile => {
-            const mediaFilePath = path.join(cameraDirPath, mediaFile);
-            const compressedVideoPath = compressVideo(mediaFilePath, cameraProxyDirPath);
-            copyToProxyDestination(compressedVideoPath, shootFolderName);
-
-            // Increment the progress bar for each processed file
+    
+        const files = fs.readdirSync(cameraDirPath);
+    
+        files.forEach(file => {
+            const filePath = path.join(cameraDirPath, file);
+            
+            if (isVideoFile(file)) {
+                const compressedVideoPath = compressVideo(filePath, cameraProxyDirPath);
+                // Include the camera directory in the copy function to retain folder structure
+                copyToProxyDestination(compressedVideoPath, shootFolderName, cameraDir);
+            } else {
+                copyNonVideoFile(filePath, shootFolderName, cameraDir);
+            }
+    
             progressBar.increment();
         });
     });
+    
 
-    // Stop the progress bar when done
     progressBar.stop();
     fs.rmdirSync(proxyRootDir, { recursive: true });
-    // fs.rm(proxyRootDir, { recursive: true })
     console.log(`${shootFolderName} has been proxied.`)
 }
 
-if (process.argv.length < 3) {
-    console.error('Please provide the shoot directory path.');
-    process.exit(1);
-}
+export function makeProxyWithArgs(directoryPath) {
+    if (!directoryPath) {
+        console.error('Please provide the shoot directory path.');
+        process.exit(1);
+    }
 
-export { makeProxy };
+    makeProxy(directoryPath);
+}

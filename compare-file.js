@@ -4,8 +4,7 @@ import { readdirSync, statSync } from 'fs';
 import { join, relative } from 'path';
 import cliProgress from 'cli-progress';
 
-// Extract shootID and the two pieces of information from command line arguments
-const [shootID, pathPart1, pathPart2] = process.argv.slice(3);
+
 
 // Construct the two paths based on the shootID and the given pieces of information
 function constructPath(shootID, pathPart) {
@@ -15,13 +14,6 @@ function constructPath(shootID, pathPart) {
     const day = date.substring(6, 8);
     return `/Volumes/${pathPart}/${year}_${month}/${day}/${shootID}`;
 }
-
-const dirPath1 = constructPath(shootID, pathPart1);
-const dirPath2 = constructPath(shootID, pathPart2);
-
-console.log(dirPath1);
-console.log(dirPath2);
-
 
 // Create a new progress bar instance
 const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
@@ -100,7 +92,11 @@ async function compareFiles(dir1, dir2) {
 }
 
 export function compareFilesWithArgs(shootID, pathPart1, pathPart2) {
-    const dirPath1 = constructPath(shootID, pathPart1);
-    const dirPath2 = constructPath(shootID, pathPart2);
-    compareFiles(dirPath1, dirPath2);
+  const dirPath1 = constructPath(shootID, pathPart1);
+  const dirPath2 = constructPath(shootID, pathPart2);
+  
+  console.log(dirPath1);
+  console.log(dirPath2);
+
+  compareFiles(dirPath1, dirPath2);
 }

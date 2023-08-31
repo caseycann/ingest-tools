@@ -6,19 +6,26 @@ import { compareSizesWithArgs } from './compare-file-sizes.js'
 import { processMonthFolder } from './ffprobe-to-at_month.js';
 import { randomStills } from './randomStills.js'
 import { printJSON } from './printJSON.js'
-import { makeProxy } from './makeProxy.js'
-
-// add some code that reads out the functions if only 'tools' is entered
+import { makeProxyWithArgs } from './makeProxy.js'
 
 const functions = {
     '--compareFiles': compareFilesWithArgs,
     '--compareSizes': compareSizesWithArgs,
     '--pushShoot': pushShoottoAT,
-    '--pushMonth': processMonthFolder,
+    // '--pushMonth': processMonthFolder,
     '--randomStills': randomStills,
     '--printJSON': printJSON, 
-    '--makeProxy': makeProxy
+    '--makeProxy': makeProxyWithArgs
 };
+
+// If only 'tools' or no function argument is entered, display the available functions
+if (process.argv.length <= 2) {
+    console.log("Available functions:");
+    for (const funcName in functions) {
+        console.log(funcName);
+    }
+    process.exit(0);  // Exit after printing the list
+}
 
 let currentFunction = null;
 const argsForFunctions = {};
