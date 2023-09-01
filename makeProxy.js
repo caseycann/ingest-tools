@@ -11,6 +11,13 @@ function compressVideo(videoPath, outputPath) {
     return compressedVideoPath;
 }
 
+function compressImage(imagePath, outputPath) {
+    const compressedImagePath = path.join(outputPath, path.basename(imagePath, path.extname(imagePath)) + '.jpg');
+    const ffmpegCommand = `ffmpeg -i "${imagePath}" "${compressedImagePath}"`;
+    execSync(ffmpegCommand);
+    return compressedImagePath;
+}
+
 function copyToProxyDestination(compressedVideoPath, shootFolderName, originalCameraDir) {
     const year = shootFolderName.slice(0, 4);
     const month = shootFolderName.slice(4, 6);
@@ -25,6 +32,18 @@ function copyToProxyDestination(compressedVideoPath, shootFolderName, originalCa
 
     const destinationPath = path.join(destinationDir, path.basename(compressedVideoPath));
     fs.copyFileSync(compressedVideoPath, destinationPath);
+}
+
+// Utility function to check if the file is an allowed non-video file
+function isAllowedNonVideoFile(file) {
+    const allowedExtensions = ['.jpg', '.jpeg', '.gif', '.drp', '.aac', '.wav', '.mp3'];
+    return allowedExtensions.some(ext => file.toLowerCase().endsWith(ext));
+}
+
+// Utility function to check if the file is an image that needs compression
+function needsImageCompression(file) {
+    const compressibleImageExtensions = ['.png', '.tiff', '.cr2'];
+    return compressibleImageExtensions.some(ext => file.toLowerCase().endsWith(ext));
 }
 
 // Utility function to check if the file is a video
@@ -51,10 +70,11 @@ function copyNonVideoFile(sourcePath, shootFolderName, originalCameraDir) {
 
 
 function makeProxy(directoryPath) {
+    const omittedFiles = [];
     const shootFolderName = path.basename(directoryPath);
     const year = shootFolderName.slice(0, 4);
     const month = shootFolderName.slice(4, 6);
-    const proxyDestination = `/Volumes/sdx.1000/_proxy/${year}_${month}/${shootFolderName}_proxy`;
+    const proxyDestination = `/Volumes/10_01/_proxy/${year}_${month}/${shootFolderName}_proxy`;
 
     if (fs.existsSync(proxyDestination)) {
         throw new Error(`A directory already exists at ${proxyDestination}. Please remove or rename the existing directory before proceeding.`);
@@ -98,9 +118,15 @@ function makeProxy(directoryPath) {
                 const compressedVideoPath = compressVideo(filePath, cameraProxyDirPath);
                 // Include the camera directory in the copy function to retain folder structure
                 copyToProxyDestination(compressedVideoPath, shootFolderName, cameraDir);
-            } else {
+            } else if (needsImageCompression(file)) {
+                const compressedImagePath = compressImage(filePath, cameraProxyDirPath);
+                copyToProxyDestination(compressedImagePath, shootFolderName, cameraDir);
+            } else if (isAllowedNonVideoFile(file)) {
                 copyNonVideoFile(filePath, shootFolderName, cameraDir);
+            } else {
+                omittedFiles.push(file);
             }
+
     
             progressBar.increment();
         });
@@ -108,6 +134,9 @@ function makeProxy(directoryPath) {
     
 
     progressBar.stop();
+    const omittedFilesPath = `/Volumes/10_01/_proxy/${year}_${month}/${shootFolderName}.proxy/omitted_files.txt`;
+    fs.writeFileSync(omittedFilesPath, omittedFiles.join('\n'));
+
     fs.rmdirSync(proxyRootDir, { recursive: true });
     console.log(`${shootFolderName} has been proxied.`)
 }
