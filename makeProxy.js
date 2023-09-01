@@ -21,7 +21,7 @@ function compressImage(imagePath, outputPath) {
 function copyToProxyDestination(compressedVideoPath, shootFolderName, originalCameraDir) {
     const year = shootFolderName.slice(0, 4);
     const month = shootFolderName.slice(4, 6);
-    const proxyDestinationBase = `/Volumes/10_01/_proxy/${year}_${month}/${shootFolderName}.proxy`;
+    const proxyDestinationBase = `/Volumes/10_01/_proxy/${year}_${month}_proxy/${shootFolderName}.proxy`;
 
     // Include original camera directory in the destination path to retain the folder structure
     const destinationDir = path.join(proxyDestinationBase, originalCameraDir);
@@ -55,7 +55,7 @@ function isVideoFile(file) {
 function copyNonVideoFile(sourcePath, shootFolderName, originalCameraDir) {
     const year = shootFolderName.slice(0, 4);
     const month = shootFolderName.slice(4, 6);
-    const proxyDestinationBase = `/Volumes/10_01/_proxy/${year}_${month}/${shootFolderName}.proxy`;
+    const proxyDestinationBase = `/Volumes/10_01/_proxy/${year}_${month}_proxy/${shootFolderName}.proxy`;
 
     // Include original camera directory in the destination path to retain the folder structure
     const destinationDir = path.join(proxyDestinationBase, originalCameraDir);
@@ -74,7 +74,7 @@ function makeProxy(directoryPath) {
     const shootFolderName = path.basename(directoryPath);
     const year = shootFolderName.slice(0, 4);
     const month = shootFolderName.slice(4, 6);
-    const proxyDestination = `/Volumes/10_01/_proxy/${year}_${month}/${shootFolderName}_proxy`;
+    const proxyDestination = `/Volumes/10_01/_proxy/${year}_${month}_proxy/${shootFolderName}_proxy`;
 
     if (fs.existsSync(proxyDestination)) {
         throw new Error(`A directory already exists at ${proxyDestination}. Please remove or rename the existing directory before proceeding.`);
@@ -134,7 +134,7 @@ function makeProxy(directoryPath) {
     
 
     progressBar.stop();
-    const omittedFilesPath = `/Volumes/10_01/_proxy/${year}_${month}/${shootFolderName}.proxy/omitted_files.txt`;
+    const omittedFilesPath = `/Volumes/10_01/_proxy/${year}_${month}_proxy/${shootFolderName}.proxy/omitted_files.txt`;
     fs.writeFileSync(omittedFilesPath, omittedFiles.join('\n'));
 
     fs.rmdirSync(proxyRootDir, { recursive: true });
