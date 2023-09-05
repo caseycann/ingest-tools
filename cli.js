@@ -6,6 +6,7 @@ import { compareSizesWithArgs } from './compare-file-sizes.js'
 import { processMonthFolder } from './ffprobe-to-at_month.js';
 import { randomStills } from './randomStills.js'
 import { printJSON } from './printJSON.js'
+import { makeArchivalProxyWithArgs } from './makeArchivalProxy.js'
 import { makeProxyWithArgs } from './makeProxy.js'
 
 const functions = {
@@ -15,7 +16,8 @@ const functions = {
     // '--pushMonth': processMonthFolder,
     '--randomStills': randomStills,
     '--printJSON': printJSON, 
-    '--makeProxy': makeProxyWithArgs
+    '--proxy': makeProxyWithArgs,
+    '--makeProxy' : makeArchivalProxyWithArgs
 };
 
 // If only 'tools' or no function argument is entered, display the available functions
