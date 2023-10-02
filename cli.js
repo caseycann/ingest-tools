@@ -8,6 +8,7 @@ import { randomStills } from './randomStills.js'
 import { printJSON } from './printJSON.js'
 import { makeArchivalProxyWithArgs } from './makeArchivalProxy.js'
 import { makeProxyWithArgs } from './makeProxy.js'
+import { filmStrip } from './stillsFromVideo.js'
 
 const functions = {
     '--compareFiles': compareFilesWithArgs,
@@ -17,7 +18,8 @@ const functions = {
     '--randomStills': randomStills,
     '--printJSON': printJSON, 
     '--proxy': makeProxyWithArgs,
-    '--makeProxy' : makeArchivalProxyWithArgs
+    '--makeProxy' : makeArchivalProxyWithArgs,
+    '--filmStrip' : filmStrip
 };
 
 // If only 'tools' or no function argument is entered, display the available functions

@@ -41,6 +41,7 @@
     "ffprobe": "^1.1.2",
     "figlet": "^1.6.0",
     "node-fetch": "^2.6.7",
+    "sharp": "^0.32.6",
     "xmlbuilder": "^15.1.1",
     "yargs": "^17.7.2"
   }
