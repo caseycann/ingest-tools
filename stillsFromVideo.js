@@ -68,7 +68,7 @@ const createPrintablePage = async (images, outputPath, startingIndex = 0) => {
     return { moreImages: currentImageIndex < images.length, nextIndex: currentImageIndex };
 };
 
-const filmStrip = async (videoPath, everyNFrames = 10) => {
+const filmStrip = async (videoPath, everyNFrames = 2) => {
     try {
         const outputPath = await extractImage(videoPath, everyNFrames);
         const images = fs.readdirSync(outputPath).map(filename => path.join(outputPath, filename));

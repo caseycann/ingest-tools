@@ -9,6 +9,7 @@ import { printJSON } from './printJSON.js'
 import { makeArchivalProxyWithArgs } from './makeArchivalProxy.js'
 import { makeProxyWithArgs } from './makeProxy.js'
 import { filmStrip } from './stillsFromVideo.js'
+import { s3Upload } from './upload_to_s3.js'
 
 const functions = {
     '--compareFiles': compareFilesWithArgs,
@@ -19,7 +20,8 @@ const functions = {
     '--printJSON': printJSON, 
     '--proxy': makeProxyWithArgs,
     '--makeProxy' : makeArchivalProxyWithArgs,
-    '--filmStrip' : filmStrip
+    '--filmStrip' : filmStrip,
+    '--s3Upload' : s3Upload
 };
 
 // If only 'tools' or no function argument is entered, display the available functions
