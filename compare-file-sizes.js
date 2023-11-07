@@ -4,6 +4,7 @@ import { readdirSync, statSync } from 'fs';
 import { join, relative } from 'path';
 import cliProgress from 'cli-progress';
 import { execSync } from 'child_process';
+import chalk from 'chalk';
 
 const [shootID, pathPart1, pathPart2] = process.argv.slice(3);
 
