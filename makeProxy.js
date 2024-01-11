@@ -34,7 +34,7 @@ async function copyToProxyDestination(compressedVideoPath, shootFolderName, orig
 }
 
 function isAllowedNonVideoFile(file) {
-    const allowedExtensions = ['.jpg', '.jpeg', '.gif', '.drp', '.aac', '.wav', '.mp3'];
+    const allowedExtensions = ['.jpg', '.jpeg', '.gif', '.drp'];
     return allowedExtensions.some(ext => file.toLowerCase().endsWith(ext));
 }
 
