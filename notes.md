@@ -1,0 +1,1 @@
+ffmpeg -i /path/ -vf scale=1920:-1 -c:v libx264 -pix_fmt yuv420p -preset slow -crf 28 /path/
