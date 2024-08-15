@@ -15,7 +15,7 @@ function constructPath(shootID, pathPart) {
     const day = date.substring(6, 8);
 
     if (pathPart === "aws") {
-        return `s3://ll.media.${year}/${year}_${month}/${shootID}`;
+        return `s3://ll.media.2023/${year}_${month}/${day}/${shootID}`;
     }
     return `/Volumes/${pathPart}/${year}_${month}/${day}/${shootID}`;
 }
