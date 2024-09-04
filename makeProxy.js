@@ -13,11 +13,26 @@ async function compressVideo(videoPath, outputPath) {
 }
 
 async function compressImage(imagePath, outputPath) {
-    const compressedImagePath = path.join(outputPath, path.basename(imagePath, path.extname(imagePath)) + '.jpg');
-    const ffmpegCommand = `ffmpeg -i "${imagePath}" "${compressedImagePath}"`;
-    await runCommand(ffmpegCommand);
-    return compressedImagePath;
+    const baseNameWithoutExt = path.basename(imagePath, path.extname(imagePath)); 
+    const compressedImagePath = path.join(outputPath, baseNameWithoutExt + '.jpg');
+
+    // Use the magick command to convert the image
+    const convertCommand = `magick "${imagePath}" -quality 85 "${compressedImagePath}"`;
+
+    try {
+        console.log(`Converting and compressing image: ${imagePath} to ${compressedImagePath}`);
+        await runCommand(convertCommand);
+        return compressedImagePath;
+    } catch (error) {
+        console.error(`Failed to convert and compress image: ${imagePath}. Error: ${error.message}`);
+        return null;
+    }
 }
+
+
+
+
+
 
 async function runCommand(command) {
     return new Promise((resolve, reject) => {
@@ -41,13 +56,9 @@ async function runCommand(command) {
     });
 }
 
-async function copyToProxyDestination(compressedFilePath, shootFolderName, originalCameraDir) {
-    const year = shootFolderName.slice(0, 4);
-    const month = shootFolderName.slice(4, 6);
-    // const proxyDestinationBase = '/Users/ll-studio/Desktop/_test-proxy';
-    const proxyDestinationBase = `/Volumes/10_01/_proxy/${year}_${month}_Proxy/${shootFolderName}.proxy`;
-
-    const destinationDir = path.join(proxyDestinationBase, originalCameraDir);
+async function copyToProxyDestination(compressedFilePath, originalCameraDir, shootFolderDir) {
+    // Use the input directory as the destination for the compressed files
+    const destinationDir = path.join(shootFolderDir, originalCameraDir); // Saving into the same directory as the source
     await fs.mkdir(destinationDir, { recursive: true });
 
     const destinationPath = path.join(destinationDir, path.basename(compressedFilePath));
@@ -60,7 +71,7 @@ function isAllowedNonVideoFile(file) {
 }
 
 function needsImageCompression(file) {
-    const compressibleImageExtensions = ['.png', '.tiff', '.cr2'];
+    const compressibleImageExtensions = ['.png', '.tiff', '.cr2', '.CR2'];
     return compressibleImageExtensions.some(ext => file.toLowerCase().endsWith(ext));
 }
 
@@ -69,13 +80,8 @@ function isVideoFile(file) {
     return videoExtensions.some(ext => file.toLowerCase().endsWith(ext));
 }
 
-async function copyNonVideoFile(sourcePath, shootFolderName, originalCameraDir) {
-    const year = shootFolderName.slice(0, 4);
-    const month = shootFolderName.slice(4, 6);
-    // const proxyDestinationBase = '/Users/ll-studio/Desktop/_test-proxy';
-    const proxyDestinationBase = `/Volumes/10_01/_proxy/${year}_${month}_Proxy/${shootFolderName}_proxy`;
-
-    const destinationDir = path.join(proxyDestinationBase, originalCameraDir);
+async function copyNonVideoFile(sourcePath, originalCameraDir, shootFolderDir) {
+    const destinationDir = path.join(shootFolderDir, originalCameraDir);
     await fs.mkdir(destinationDir, { recursive: true });
 
     const destinationPath = path.join(destinationDir, path.basename(sourcePath));
@@ -85,13 +91,9 @@ async function copyNonVideoFile(sourcePath, shootFolderName, originalCameraDir) 
 async function makeProxy(directoryPath) {
     const omittedFiles = [];
     const shootFolderName = path.basename(directoryPath);
-    const year = shootFolderName.slice(0, 4);
-    const month = shootFolderName.slice(4, 6);
-    // const proxyDestination = '/Users/ll-studio/Desktop/_test-proxy';
-    const proxyDestination = `/Volumes/10_01/_proxy/${year}_${month}_Proxy/${shootFolderName}_proxy`;
-
-    // Check if the proxyRootDir already exists
-    const proxyRootDir = path.join(path.dirname(directoryPath), shootFolderName + "_proxy");
+    
+    // Create the proxyRootDir at the same level as the shootFolder, not inside it
+    const proxyRootDir = path.join(path.dirname(directoryPath), shootFolderName + ".proxy");
 
     try {
         await fs.access(proxyRootDir);
@@ -100,7 +102,7 @@ async function makeProxy(directoryPath) {
         if (error.code !== 'ENOENT') throw error;
     }
 
-    // Proceed with creating the proxyRootDir since it does not exist
+    // Proceed with creating the proxyRootDir
     await fs.mkdir(proxyRootDir, { recursive: true });
 
     const entries = await fs.readdir(directoryPath, { withFileTypes: true });
@@ -128,30 +130,37 @@ async function makeProxy(directoryPath) {
 
         for (const file of files) {
             const filePath = path.join(cameraDirPath, file);
-
+        
             if (isVideoFile(file)) {
                 const compressedVideoPath = await compressVideo(filePath, cameraProxyDirPath);
-                await copyToProxyDestination(compressedVideoPath, shootFolderName, cameraDir);  // Copy to proxyDestination after compression
+                if (compressedVideoPath) {
+                    await copyToProxyDestination(compressedVideoPath, cameraDir, proxyRootDir);
+                }
             } else if (needsImageCompression(file)) {
                 const compressedImagePath = await compressImage(filePath, cameraProxyDirPath);
-                await copyToProxyDestination(compressedImagePath, shootFolderName, cameraDir);  // Copy to proxyDestination after compression
+                if (compressedImagePath) {
+                    await copyToProxyDestination(compressedImagePath, cameraDir, proxyRootDir);
+                }
             } else if (isAllowedNonVideoFile(file)) {
-                await copyNonVideoFile(filePath, shootFolderName, cameraDir);
+                await copyNonVideoFile(filePath, cameraDir, proxyRootDir);
             } else {
                 omittedFiles.push(file);
             }
-
+        
             progressBar.increment();
         }
+        
     }
 
     progressBar.stop();
     const omittedFilesPath = path.join(proxyRootDir, 'omitted_files.txt');
     await fs.writeFile(omittedFilesPath, omittedFiles.join('\n'));
-    await fs.rmdir(proxyRootDir, { recursive: true });
-    console.log(`${shootFolderName} has been proxied.`);
-}
+    
+    // Remove this line, so we don't delete the generated folders and contents
+    // await fs.rmdir(proxyRootDir, { recursive: true });
 
+    console.log(`${shootFolderName} has been proxied to ${proxyRootDir}.`);
+}
 
 export async function makeProxyWithArgs(directoryPath) {
     if (!directoryPath) {

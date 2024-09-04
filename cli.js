@@ -6,7 +6,6 @@ import { compareSizesWithArgs } from './compare-file-sizes.js'
 import { processMonthFolder } from './ffprobe-to-at_month.js';
 import { randomStills } from './randomStills.js'
 import { printJSON } from './printJSON.js'
-import { makeArchivalProxyWithArgs } from './makeArchivalProxy.js'
 import { makeProxyWithArgs } from './makeProxy.js'
 import { filmStrip } from './stillsFromVideo.js'
 import { s3Upload } from './upload_to_s3.js';
@@ -20,7 +19,7 @@ const functions = {
     '--randomStills': randomStills,
     '--printJSON': printJSON, 
     '--proxy': makeProxyWithArgs,
-    '--makeProxy' : makeArchivalProxyWithArgs,
+    '--makeProxy' : makeProxyWithArgs,
     '--filmStrip' : filmStrip,
     '--s3Upload' : s3Upload,
     '--proxyOne' : proxyOne
