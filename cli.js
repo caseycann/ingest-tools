@@ -10,6 +10,7 @@ import { makeProxyWithArgs } from './makeProxy.js'
 import { filmStrip } from './stillsFromVideo.js'
 import { s3Upload } from './upload_to_s3.js';
 import { proxyOne } from './proxyOne.js'
+import { checkRename } from './checkRename.js'
 
 const functions = {
     '--compareFiles': compareFilesWithArgs,
@@ -22,7 +23,8 @@ const functions = {
     '--makeProxy' : makeProxyWithArgs,
     '--filmStrip' : filmStrip,
     '--s3Upload' : s3Upload,
-    '--proxyOne' : proxyOne
+    '--proxyOne' : proxyOne,
+    '--checkRename' : checkRename
 };
 
 // If only 'tools' or no function argument is entered, display the available functions
