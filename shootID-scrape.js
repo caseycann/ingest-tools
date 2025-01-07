@@ -16,8 +16,8 @@ import { calculateFolderSize } from './utilities/calculateFolderSize.js';
  * --------------------------------------------- */
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
 const SHOOTID_BASE_ID = process.env.SHOOTID_BASE_ID;
-const TABLE_NAME = 'tblZVIujC0KE1Ih4U';         // The name of the table in Airtable
-const VOLUMES_TABLE_NAME = 'tblginuhTkiLKcxKw'; // Volumes table name
+const TABLE_NAME = 'tblZVIujC0KE1Ih4U'; // The table in Airtable
+// (We no longer need a VOLUMES_TABLE_NAME since we're using a single select)
 
 Airtable.configure({
   apiKey: AIRTABLE_API_KEY,
@@ -26,145 +26,93 @@ Airtable.configure({
 const base = Airtable.base(SHOOTID_BASE_ID);
 
 /* ---------------------------------------------
- * 2. Fetch or create a Volume record (linked record)
- * --------------------------------------------- */
-async function findOrCreateVolumeRecord(volumeName) {
-  const existingRecords = await base(VOLUMES_TABLE_NAME)
-    .select({
-      filterByFormula: `{Name} = "${volumeName}"`,
-      maxRecords: 1,
-    })
-    .firstPage();
-
-  if (existingRecords.length > 0) {
-    // Return the existing record's ID
-    return existingRecords[0].id;
-  } else {
-    // Create a new record for this volume
-    const created = await base(VOLUMES_TABLE_NAME).create([
-      {
-        fields: { 'Name': volumeName },
-      },
-    ]);
-    return created[0].id;
-  }
-}
-
-/* ---------------------------------------------
- * 3. Fetch or create a Shoot record
- * --------------------------------------------- */
-async function findOrCreateShootRecord(shootFolder) {
-  const existingRecords = await base(TABLE_NAME)
-    .select({
-      filterByFormula: `{Name} = "${shootFolder}"`,
-      maxRecords: 1,
-    })
-    .firstPage();
-
-  if (existingRecords.length > 0) {
-    return existingRecords[0];
-  } else {
-    const created = await base(TABLE_NAME).create([
-      {
-        fields: { 'Name': shootFolder },
-      },
-    ]);
-    return created[0];
-  }
-}
-
-/* ---------------------------------------------
- * 4. Main function to scan directories
+ * 2. Main function: Scan directories & create records
  * --------------------------------------------- */
 export async function scanDirectoryAndSync(rootPath) {
-  // 1. List all volumes
+  // 1. List all volumes (top-level folders)
   const volumes = await fs.readdir(rootPath);
-  console.log('Volumes:', volumes);  // <-- Log the volumes array
+  console.log('Volumes:', volumes);
 
   for (const volume of volumes) {
     const volumePath = path.join(rootPath, volume);
     const statVolume = await fs.lstat(volumePath);
 
     if (!statVolume.isDirectory()) {
-      console.log(`Skipping file: ${volume}`); // <--
+      console.log(`Skipping file: ${volume}`);
       continue;
     }
-    console.log('Processing volume:', volume); // <--
+    console.log('Processing volume:', volume);
 
-    // 2. List the month folders
+    // 2. List "month" folders under the volume
     const monthFolders = await fs.readdir(volumePath);
-    console.log('Month folders in', volume, ':', monthFolders); // <--
+    console.log('Month folders in', volume, ':', monthFolders);
 
     for (const monthFolder of monthFolders) {
       const monthFolderPath = path.join(volumePath, monthFolder);
       const statMonth = await fs.lstat(monthFolderPath);
 
       if (!statMonth.isDirectory()) {
-        console.log(`Skipping file: ${monthFolder}`); // <--
+        console.log(`Skipping file: ${monthFolder}`);
         continue;
       }
-      console.log('Processing monthFolder:', monthFolder); // <--
+      console.log('Processing monthFolder:', monthFolder);
 
-      // 3. List the day folders
+      // 3. List "day" folders
       const dayFolders = await fs.readdir(monthFolderPath);
-      console.log('Day folders in', monthFolder, ':', dayFolders); // <--
+      console.log('Day folders in', monthFolder, ':', dayFolders);
 
       for (const dayFolder of dayFolders) {
         const dayFolderPath = path.join(monthFolderPath, dayFolder);
         const statDay = await fs.lstat(dayFolderPath);
 
         if (!statDay.isDirectory()) {
-          console.log(`Skipping file: ${dayFolder}`); // <--
+          console.log(`Skipping file: ${dayFolder}`);
           continue;
         }
-        console.log('Processing dayFolder:', dayFolder); // <--
+        console.log('Processing dayFolder:', dayFolder);
 
-        // 4. List the shoot folders
+        // 4. List "shoot" folders
         const shootFolders = await fs.readdir(dayFolderPath);
-        console.log('Shoot folders in', dayFolder, ':', shootFolders); // <--
+        console.log('Shoot folders in', dayFolder, ':', shootFolders);
 
         for (const shootFolder of shootFolders) {
           const shootFolderPath = path.join(dayFolderPath, shootFolder);
           const statShoot = await fs.lstat(shootFolderPath);
 
           if (!statShoot.isDirectory()) {
-            console.log(`Skipping file: ${shootFolder}`); // <--
+            console.log(`Skipping file: ${shootFolder}`);
             continue;
           }
-          console.log('Processing shootFolder:', shootFolder); // <--
+          console.log('Processing shootFolder:', shootFolder);
 
-          // All the logic (calculate size, update Airtable, etc.)
+          // Calculate folder size
           const sizeGB = await calculateFolderSize(shootFolderPath);
           console.log(`Calculated size for: ${shootFolderPath} = ${sizeGB} GB`);
 
-          // Find or create the shoot record in Airtable
-          const shootRecord = await findOrCreateShootRecord(shootFolder);
-
-          // Find or create the volume record
-          const volumeRecordId = await findOrCreateVolumeRecord(volume);
-
-          // Append the volume link to the existing "NAS Volume" field
-          // (If your field name is actually "volume", adjust as needed)
-          const existingVolumeLinks = shootRecord.get('volume') || [];
-          if (!existingVolumeLinks.includes(volumeRecordId)) {
-            existingVolumeLinks.push(volumeRecordId);
+          // 5. Create a new record for this shoot folder
+          try {
+            const createdRecord = await base(TABLE_NAME).create(
+              [
+                {
+                  fields: {
+                    'ShootID': shootFolder,
+                    'Volume': volume, // single select field
+                    'Size': sizeGB,
+                  },
+                },
+              ],
+              { typecast: true } // <-- Add this object
+            );
+          
+            console.log(
+              `Created record for shoot: ${shootFolder} [Volume: ${volume}, Size: ${sizeGB.toFixed(
+                2
+              )} GB] (Record ID: ${createdRecord[0].id})`
+            );
+          } catch (err) {
+            console.error(`Error creating Airtable record for ${shootFolder}:`, err);
           }
-
-          // Update the record with the new volume link + size
-          // Adjust field names here to match your Airtable schema
-          await base(TABLE_NAME).update([
-            {
-              id: shootRecord.id,
-              fields: {
-                'volume': existingVolumeLinks,
-                'size': sizeGB,
-              },
-            },
-          ]);
-
-          console.log(
-            `Synced shoot: ${shootFolder} [${volume}] (${sizeGB.toFixed(2)} GB)`
-          );
+          
         }
       }
     }
