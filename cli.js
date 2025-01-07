@@ -11,6 +11,7 @@ import { filmStrip } from './stillsFromVideo.js'
 import { s3Upload } from './upload_to_s3.js';
 import { proxyOne } from './proxyOne.js'
 import { checkRename } from './checkRename.js'
+import {scanDirectoryAndSync} from './shootID-scrape.js'
 
 const functions = {
     '--compareFiles': compareFilesWithArgs,
@@ -24,7 +25,8 @@ const functions = {
     '--filmStrip' : filmStrip,
     '--s3Upload' : s3Upload,
     '--proxyOne' : proxyOne,
-    '--checkRename' : checkRename
+    '--checkRename' : checkRename,
+    '--scrape' : scanDirectoryAndSync
 };
 
 // If only 'tools' or no function argument is entered, display the available functions
