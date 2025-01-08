@@ -12,6 +12,7 @@ import { s3Upload } from './upload_to_s3.js';
 import { proxyOne } from './proxyOne.js'
 import { checkRename } from './checkRename.js'
 import {scanDirectoryAndSync} from './shootID-scrape.js'
+import {scanDirectoryAndSyncNoDay} from './shootID-scrape_no-day.js'
 
 const functions = {
     '--compareFiles': compareFilesWithArgs,
@@ -26,7 +27,8 @@ const functions = {
     '--s3Upload' : s3Upload,
     '--proxyOne' : proxyOne,
     '--checkRename' : checkRename,
-    '--scrape' : scanDirectoryAndSync
+    '--scrape' : scanDirectoryAndSync, 
+    '--scrape-noDay' : scanDirectoryAndSyncNoDay
 };
 
 // If only 'tools' or no function argument is entered, display the available functions
