@@ -1,5 +1,5 @@
 /* ---------------------------------------------
- * sync.js (No "day" level)
+ * sync.js (No "day" level) + Month Folder Filter
  * --------------------------------------------- */
 import dotenv from 'dotenv';
 dotenv.config();  // <-- load environment variables from .env
@@ -22,6 +22,17 @@ Airtable.configure({
 
 const base = Airtable.base(SHOOTID_BASE_ID);
 
+/**
+ * Helper function to check "YYYY_MM" naming scheme.
+ * - Year: 4 digits
+ * - Month: 2 digits (01-12)
+ */
+function isValidYearMonth(folderName) {
+  // This regex enforces a 4-digit year, an underscore,
+  // and a month from 01 to 12.
+  return /^\d{4}_(0[1-9]|1[0-2])[a-zA-Z]?$/.test(folderName);
+}
+
 /* ---------------------------------------------
  * 2. Main function: Scan directories & create records
  * --------------------------------------------- */
@@ -36,11 +47,17 @@ export async function scanDirectoryAndSyncNoDay(rootPath) {
   console.log('Month folders in', volume, ':', monthFolders);
 
   for (const monthFolder of monthFolders) {
+    // Check naming scheme before proceeding
+    if (!isValidYearMonth(monthFolder)) {
+      console.log(`[Skipping invalid month folder name: ${monthFolder}]`);
+      continue;
+    }
+
     const monthFolderPath = path.join(rootPath, monthFolder);
     const statMonth = await fs.lstat(monthFolderPath);
 
     if (!statMonth.isDirectory()) {
-      console.log(`Skipping file: ${monthFolder}`);
+      console.log(`Skipping file (not a directory): ${monthFolder}`);
       continue;
     }
     console.log('Processing monthFolder:', monthFolder);
@@ -70,9 +87,9 @@ export async function scanDirectoryAndSyncNoDay(rootPath) {
             {
               fields: {
                 // Adjust field names here to match your schema
-                'ShootID': shootFolder,
-                'Volume': volume,  // single select field in Airtable
-                'Size': sizeGB,
+                ShootID: shootFolder,
+                Volume: volume,     // single select field in Airtable
+                Size: sizeGB,
               },
             },
           ],

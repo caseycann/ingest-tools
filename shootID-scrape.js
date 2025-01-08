@@ -7,8 +7,6 @@ dotenv.config();  // <-- load environment variables from .env
 import fs from 'fs-extra';
 import path from 'path';
 import Airtable from 'airtable';
-
-// Import your calculateFolderSize utility from utilities/
 import { calculateFolderSize } from './utilities/calculateFolderSize.js';
 
 /* ---------------------------------------------
@@ -24,6 +22,19 @@ Airtable.configure({
 
 const base = Airtable.base(SHOOTID_BASE_ID);
 
+/**
+ * Helper function to check "YYYY_MM" with optional letter suffix.
+ * Examples:
+ *   2024_05   (valid)
+ *   2024_05a  (valid)
+ *   2024_05xyz (valid, if you allow multiple letters)
+ * Adjust [a-zA-Z]* to [a-zA-Z]? if you only want one letter max.
+ */
+function isValidYearMonth(folderName) {
+  // Four digits + underscore + two-digit month (01–12) + optional letters
+  return /^\d{4}_(0[1-9]|1[0-2])[a-zA-Z]?$/.test(folderName);
+}
+
 /* ---------------------------------------------
  * 2. Main function: Scan directories & create records
  * --------------------------------------------- */
@@ -38,6 +49,12 @@ export async function scanDirectoryAndSync(rootPath) {
   console.log('Month folders in', volume, ':', monthFolders);
 
   for (const monthFolder of monthFolders) {
+    // Check naming scheme before proceeding
+    if (!isValidYearMonth(monthFolder)) {
+      console.log(`[Skipping invalid month folder name: ${monthFolder}]`);
+      continue;
+    }
+
     const monthFolderPath = path.join(rootPath, monthFolder);
     const statMonth = await fs.lstat(monthFolderPath);
 
