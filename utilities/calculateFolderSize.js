@@ -22,7 +22,7 @@ export async function calculateFolderSize(folderPath) {
   // Start the recursive walk at the root folderPath
   await walk(folderPath);
 
-  // Convert bytes to gigabytes (roughly)
-  const sizeInGB = totalSize / (1024 * 1024 * 1024);
+  // Convert bytes to gigabytes (decimal)
+  const sizeInGB = totalSize / 1_000_000_000; // 1 GB = 1e9 bytes
   return sizeInGB;
 }
