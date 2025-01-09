@@ -7,3 +7,5 @@ total Shoots:
 - Location: 5 shoots x 2 devices: 100 images
 
 All told: 1690 images/month
+
+

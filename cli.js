@@ -13,6 +13,7 @@ import { proxyOne } from './proxyOne.js'
 import { checkRename } from './checkRename.js'
 import {scanDirectoryAndSync} from './shootID-scrape.js'
 import {scanDirectoryAndSyncNoDay} from './shootID-scrape_no-day.js'
+import {scanVolumeAndSync} from './scrape_months.js'
 
 const functions = {
     '--compareFiles': compareFilesWithArgs,
@@ -28,7 +29,8 @@ const functions = {
     '--proxyOne' : proxyOne,
     '--checkRename' : checkRename,
     '--scrape' : scanDirectoryAndSync, 
-    '--scrape-noDay' : scanDirectoryAndSyncNoDay
+    '--scrape-noDay' : scanDirectoryAndSyncNoDay,
+    '--scrape-months' : scanVolumeAndSync
 };
 
 // If only 'tools' or no function argument is entered, display the available functions
